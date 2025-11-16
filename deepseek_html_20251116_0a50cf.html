@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finanzas Pymes - Control de Gastos e Ingresos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .section-title {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            padding: 15px 20px;
+            margin-top: 20px;
+            font-size: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .controls {
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #eaeaea;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .controls button {
+            padding: 8px 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .controls button:hover {
+            background-color: #2980b9;
+        }
+        
+        .controls button#finalBalance {
+            background-color: #2ecc71;
+            font-weight: bold;
+        }
+        
+        .controls button#finalBalance:hover {
+            background-color: #27ae60;
+        }
+        
+        .controls button.inventory-btn {
+            background-color: #e67e22;
+        }
+        
+        .controls button.inventory-btn:hover {
+            background-color: #d35400;
+        }
+        
+        .controls button.clients-btn {
+            background-color: #9b59b6;
+        }
+        
+        .controls button.clients-btn:hover {
+            background-color: #8e44ad;
+        }
+        
+        .controls button.payments-btn {
+            background-color: #e74c3c;
+        }
+        
+        .controls button.payments-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background-color: #34495e;
+            color: white;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        th {
+            font-weight: 600;
+        }
+        
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .date-column {
+            width: 120px;
+        }
+        
+        .description-column {
+            width: 40%;
+        }
+        
+        .income-column, .expense-column, .balance-column {
+            width: 15%;
+        }
+        
+        .product-column {
+            width: 40%;
+        }
+        
+        .quantity-column, .price-column, .total-column {
+            width: 20%;
+        }
+        
+        .client-name-column {
+            width: 40%;
+        }
+        
+        .client-sales-column {
+            width: 40%;
+        }
+        
+        .client-date-column {
+            width: 20%;
+        }
+        
+        .payment-name-column {
+            width: 30%;
+        }
+        
+        .payment-date-column {
+            width: 20%;
+        }
+        
+        .payment-amount-column {
+            width: 20%;
+        }
+        
+        .payment-type-column {
+            width: 30%;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .income-column input {
+            background-color: #e8f8f5;
+        }
+        
+        .expense-column input {
+            background-color: #fdedec;
+        }
+        
+        .price-column input {
+            background-color: #fef9e7;
+        }
+        
+        .client-sales-column input {
+            background-color: #f4ecf7;
+        }
+        
+        .payment-amount-column input {
+            background-color: #fff9e6;
+        }
+        
+        .payment-type-column select.cobrar {
+            background-color: #e8f8f5;
+            color: #27ae60;
+        }
+        
+        .payment-type-column select.pagar {
+            background-color: #fdedec;
+            color: #e74c3c;
+        }
+        
+        .balance-column, .total-column {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .positive {
+            color: #27ae60;
+        }
+        
+        .negative {
+            color: #e74c3c;
+        }
+        
+        .footer {
+            padding: 15px 20px;
+            text-align: center;
+            background-color: #f8f9fa;
+            border-top: 1px solid #eaeaea;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal h2 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .modal p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        
+        .modal button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .controls button {
+                width: 100%;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Control Financiero para Pymes</h1>
+            <p class="subtitle">Una alternativa simple y moderna a Excel para gestionar tus finanzas</p>
+        </header>
+        
+        <!-- Sección de Finanzas -->
+        <div class="section-title">
+            <span>Control de Finanzas</span>
+        </div>
+        
+        <div class="controls">
+            <button id="addRow">Agregar Fila</button>
+            <button id="deleteRow">Eliminar Fila</button>
+            <button id="finalBalance">SALDO FINAL</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="financeTable">
+                <thead>
+                    <tr>
+                        <th class="date-column">Fecha</th>
+                        <th class="description-column">Descripción</th>
+                        <th class="income-column">Ingresos</th>
+                        <th class="expense-column">Egresos</th>
+                        <th class="balance-column">Saldo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Las filas se agregarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Sección de Inventario -->
+        <div class="section-title">
+            <span>Control de Inventario</span>
+        </div>
+        
+        <div class="controls">
+            <button id="addInventoryRow" class="inventory-btn">Agregar Producto</button>
+            <button id="deleteInventoryRow" class="inventory-btn">Eliminar Producto</button>
+            <button id="totalInventory" class="inventory-btn">VALOR TOTAL INVENTARIO</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="inventoryTable">
+                <thead>
+                    <tr>
+                        <th class="product-column">Nombre del Producto</th>
+                        <th class="quantity-column">Cantidad</th>
+                        <th class="price-column">Precio de Venta</th>
+                        <th class="total-column">Valor Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Las filas de inventario se agregarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Sección de Gestión de Clientes -->
+        <div class="section-title">
+            <span>Gestión de Clientes</span>
+        </div>
+        
+        <div class="controls">
+            <button id="addClientRow" class="clients-btn">Agregar Cliente</button>
+            <button id="deleteClientRow" class="clients-btn">Eliminar Cliente</button>
+            <button id="totalSales" class="clients-btn">VENTAS TOTALES</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="clientsTable">
+                <thead>
+                    <tr>
+                        <th class="client-name-column">Nombre del Cliente</th>
+                        <th class="client-sales-column">Ventas Realizadas</th>
+                        <th class="client-date-column">Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Las filas de clientes se agregarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Sección de Control de Cobros y Pagos -->
+        <div class="section-title">
+            <span>Control de Cobros y Pagos</span>
+        </div>
+        
+        <div class="controls">
+            <button id="addPaymentRow" class="payments-btn">Agregar Registro</button>
+            <button id="deletePaymentRow" class="payments-btn">Eliminar Registro</button>
+            <button id="totalPayments" class="payments-btn">BALANCE COBROS/PAGOS</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="paymentsTable">
+                <thead>
+                    <tr>
+                        <th class="payment-name-column">Nombre</th>
+                        <th class="payment-date-column">Fecha</th>
+                        <th class="payment-amount-column">Monto</th>
+                        <th class="payment-type-column">Tipo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Las filas de cobros/pagos se agregarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="footer">
+            <p>Finanzas Pymes - Aplicación simple para el control de gastos, ingresos, inventario, clientes y cobros/pagos</p>
+        </div>
+    </div>
+    
+    <!-- Modal para Saldo Final -->
+    <div class="modal" id="balanceModal">
+        <div class="modal-content">
+            <h2>Saldo Final</h2>
+            <p id="balanceResult">El saldo final es: $0.00</p>
+            <button id="closeModal">Cerrar</button>
+        </div>
+    </div>
+    
+    <!-- Modal para Valor Total del Inventario -->
+    <div class="modal" id="inventoryModal">
+        <div class="modal-content">
+            <h2>Valor Total del Inventario</h2>
+            <p id="inventoryResult">El valor total del inventario es: $0.00</p>
+            <button id="closeInventoryModal">Cerrar</button>
+        </div>
+    </div>
+    
+    <!-- Modal para Ventas Totales -->
+    <div class="modal" id="salesModal">
+        <div class="modal-content">
+            <h2>Ventas Totales</h2>
+            <p id="salesResult">El total de ventas realizadas es: $0.00</p>
+            <button id="closeSalesModal">Cerrar</button>
+        </div>
+    </div>
+    
+    <!-- Modal para Balance de Cobros y Pagos -->
+    <div class="modal" id="paymentsModal">
+        <div class="modal-content">
+            <h2>Balance de Cobros y Pagos</h2>
+            <p id="paymentsResult">El balance neto es: $0.00</p>
+            <button id="closePaymentsModal">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos de Finanzas
+            const financeTableBody = document.querySelector('#financeTable tbody');
+            const addRowBtn = document.getElementById('addRow');
+            const deleteRowBtn = document.getElementById('deleteRow');
+            const finalBalanceBtn = document.getElementById('finalBalance');
+            const balanceModal = document.getElementById('balanceModal');
+            const balanceResult = document.getElementById('balanceResult');
+            const closeModalBtn = document.getElementById('closeModal');
+            
+            // Elementos de Inventario
+            const inventoryTableBody = document.querySelector('#inventoryTable tbody');
+            const addInventoryRowBtn = document.getElementById('addInventoryRow');
+            const deleteInventoryRowBtn = document.getElementById('deleteInventoryRow');
+            const totalInventoryBtn = document.getElementById('totalInventory');
+            const inventoryModal = document.getElementById('inventoryModal');
+            const inventoryResult = document.getElementById('inventoryResult');
+            const closeInventoryModalBtn = document.getElementById('closeInventoryModal');
+            
+            // Elementos de Clientes
+            const clientsTableBody = document.querySelector('#clientsTable tbody');
+            const addClientRowBtn = document.getElementById('addClientRow');
+            const deleteClientRowBtn = document.getElementById('deleteClientRow');
+            const totalSalesBtn = document.getElementById('totalSales');
+            const salesModal = document.getElementById('salesModal');
+            const salesResult = document.getElementById('salesResult');
+            const closeSalesModalBtn = document.getElementById('closeSalesModal');
+            
+            // Elementos de Cobros y Pagos
+            const paymentsTableBody = document.querySelector('#paymentsTable tbody');
+            const addPaymentRowBtn = document.getElementById('addPaymentRow');
+            const deletePaymentRowBtn = document.getElementById('deletePaymentRow');
+            const totalPaymentsBtn = document.getElementById('totalPayments');
+            const paymentsModal = document.getElementById('paymentsModal');
+            const paymentsResult = document.getElementById('paymentsResult');
+            const closePaymentsModalBtn = document.getElementById('closePaymentsModal');
+            
+            // Inicializar tablas con una fila cada una
+            addFinanceRow();
+            addInventoryRow();
+            addClientRow();
+            addPaymentRow();
+            
+            // ========== FUNCIONES DE FINANZAS ==========
+            
+            // Función para agregar una nueva fila a la tabla de finanzas
+            function addFinanceRow() {
+                const newRow = document.createElement('tr');
+                const today = new Date().toISOString().split('T')[0];
+                
+                newRow.innerHTML = `
+                    <td class="date-column">
+                        <input type="date" value="${today}" class="date-input">
+                    </td>
+                    <td class="description-column">
+                        <textarea rows="1" class="description-input" placeholder="Descripción del movimiento"></textarea>
+                    </td>
+                    <td class="income-column">
+                        <input type="number" min="0" step="0.01" class="income-input" placeholder="0.00">
+                    </td>
+                    <td class="expense-column">
+                        <input type="number" min="0" step="0.01" class="expense-input" placeholder="0.00">
+                    </td>
+                    <td class="balance-column">
+                        <span class="balance-display">$0.00</span>
+                    </td>
+                `;
+                
+                financeTableBody.appendChild(newRow);
+                
+                // Agregar event listeners a los inputs de la nueva fila
+                const incomeInput = newRow.querySelector('.income-input');
+                const expenseInput = newRow.querySelector('.expense-input');
+                
+                incomeInput.addEventListener('input', updateFinanceBalances);
+                expenseInput.addEventListener('input', updateFinanceBalances);
+            }
+            
+            // Función para eliminar la última fila de finanzas
+            function deleteFinanceRow() {
+                const rows = financeTableBody.querySelectorAll('tr');
+                if (rows.length > 1) {
+                    financeTableBody.removeChild(rows[rows.length - 1]);
+                    updateFinanceBalances();
+                }
+            }
+            
+            // Función para actualizar todos los saldos de finanzas
+            function updateFinanceBalances() {
+                const rows = financeTableBody.querySelectorAll('tr');
+                let runningBalance = 0;
+                
+                rows.forEach(row => {
+                    const incomeInput = row.querySelector('.income-input');
+                    const expenseInput = row.querySelector('.expense-input');
+                    const balanceDisplay = row.querySelector('.balance-display');
+                    
+                    const income = parseFloat(incomeInput.value) || 0;
+                    const expense = parseFloat(expenseInput.value) || 0;
+                    
+                    runningBalance += income - expense;
+                    
+                    // Formatear el saldo
+                    balanceDisplay.textContent = `$${runningBalance.toFixed(2)}`;
+                    
+                    // Aplicar color según si es positivo o negativo
+                    if (runningBalance >= 0) {
+                        balanceDisplay.className = 'balance-display positive';
+                    } else {
+                        balanceDisplay.className = 'balance-display negative';
+                    }
+                });
+            }
+            
+            // Función para calcular el saldo final de finanzas
+            function calculateFinalBalance() {
+                const rows = financeTableBody.querySelectorAll('tr');
+                let finalBalance = 0;
+                
+                rows.forEach(row => {
+                    const incomeInput = row.querySelector('.income-input');
+                    const expenseInput = row.querySelector('.expense-input');
+                    
+                    const income = parseFloat(incomeInput.value) || 0;
+                    const expense = parseFloat(expenseInput.value) || 0;
+                    
+                    finalBalance += income - expense;
+                });
+                
+                return finalBalance;
+            }
+            
+            // Función para mostrar el saldo final de finanzas
+            function showFinalBalance() {
+                const finalBalance = calculateFinalBalance();
+                balanceResult.textContent = `El saldo final es: $${finalBalance.toFixed(2)}`;
+                balanceModal.style.display = 'flex';
+            }
+            
+            // ========== FUNCIONES DE INVENTARIO ==========
+            
+            // Función para agregar una nueva fila al inventario
+            function addInventoryRow() {
+                const newRow = document.createElement('tr');
+                
+                newRow.innerHTML = `
+                    <td class="product-column">
+                        <input type="text" class="product-input" placeholder="Nombre del producto">
+                    </td>
+                    <td class="quantity-column">
+                        <input type="number" min="0" step="1" class="quantity-input" placeholder="0">
+                    </td>
+                    <td class="price-column">
+                        <input type="number" min="0" step="0.01" class="price-input" placeholder="0.00">
+                    </td>
+                    <td class="total-column">
+                        <span class="total-display">$0.00</span>
+                    </td>
+                `;
+                
+                inventoryTableBody.appendChild(newRow);
+                
+                // Agregar event listeners a los inputs de la nueva fila
+                const quantityInput = newRow.querySelector('.quantity-input');
+                const priceInput = newRow.querySelector('.price-input');
+                
+                quantityInput.addEventListener('input', updateInventoryTotals);
+                priceInput.addEventListener('input', updateInventoryTotals);
+            }
+            
+            // Función para eliminar la última fila del inventario
+            function deleteInventoryRow() {
+                const rows = inventoryTableBody.querySelectorAll('tr');
+                if (rows.length > 1) {
+                    inventoryTableBody.removeChild(rows[rows.length - 1]);
+                    updateInventoryTotals();
+                }
+            }
+            
+            // Función para actualizar todos los totales del inventario
+            function updateInventoryTotals() {
+                const rows = inventoryTableBody.querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    const quantityInput = row.querySelector('.quantity-input');
+                    const priceInput = row.querySelector('.price-input');
+                    const totalDisplay = row.querySelector('.total-display');
+                    
+                    const quantity = parseFloat(quantityInput.value) || 0;
+                    const price = parseFloat(priceInput.value) || 0;
+                    const total = quantity * price;
+                    
+                    // Formatear el total
+                    totalDisplay.textContent = `$${total.toFixed(2)}`;
+                });
+            }
+            
+            // Función para calcular el valor total del inventario
+            function calculateTotalInventory() {
+                const rows = inventoryTableBody.querySelectorAll('tr');
+                let totalInventory = 0;
+                
+                rows.forEach(row => {
+                    const quantityInput = row.querySelector('.quantity-input');
+                    const priceInput = row.querySelector('.price-input');
+                    
+                    const quantity = parseFloat(quantityInput.value) || 0;
+                    const price = parseFloat(priceInput.value) || 0;
+                    
+                    totalInventory += quantity * price;
+                });
+                
+                return totalInventory;
+            }
+            
+            // Función para mostrar el valor total del inventario
+            function showTotalInventory() {
+                const totalInventory = calculateTotalInventory();
+                inventoryResult.textContent = `El valor total del inventario es: $${totalInventory.toFixed(2)}`;
+                inventoryModal.style.display = 'flex';
+            }
+            
+            // ========== FUNCIONES DE GESTIÓN DE CLIENTES ==========
+            
+            // Función para agregar una nueva fila a la tabla de clientes
+            function addClientRow() {
+                const newRow = document.createElement('tr');
+                const today = new Date().toISOString().split('T')[0];
+                
+                newRow.innerHTML = `
+                    <td class="client-name-column">
+                        <input type="text" class="client-name-input" placeholder="Nombre del cliente">
+                    </td>
+                    <td class="client-sales-column">
+                        <input type="number" min="0" step="0.01" class="client-sales-input" placeholder="0.00">
+                    </td>
+                    <td class="client-date-column">
+                        <input type="date" value="${today}" class="client-date-input">
+                    </td>
+                `;
+                
+                clientsTableBody.appendChild(newRow);
+            }
+            
+            // Función para eliminar la última fila de clientes
+            function deleteClientRow() {
+                const rows = clientsTableBody.querySelectorAll('tr');
+                if (rows.length > 1) {
+                    clientsTableBody.removeChild(rows[rows.length - 1]);
+                }
+            }
+            
+            // Función para calcular el total de ventas
+            function calculateTotalSales() {
+                const rows = clientsTableBody.querySelectorAll('tr');
+                let totalSales = 0;
+                
+                rows.forEach(row => {
+                    const salesInput = row.querySelector('.client-sales-input');
+                    const sales = parseFloat(salesInput.value) || 0;
+                    totalSales += sales;
+                });
+                
+                return totalSales;
+            }
+            
+            // Función para mostrar el total de ventas
+            function showTotalSales() {
+                const totalSales = calculateTotalSales();
+                salesResult.textContent = `El total de ventas realizadas es: $${totalSales.toFixed(2)}`;
+                salesModal.style.display = 'flex';
+            }
+            
+            // ========== FUNCIONES DE CONTROL DE COBROS Y PAGOS ==========
+            
+            // Función para agregar una nueva fila a la tabla de cobros y pagos
+            function addPaymentRow() {
+                const newRow = document.createElement('tr');
+                const today = new Date().toISOString().split('T')[0];
+                
+                newRow.innerHTML = `
+                    <td class="payment-name-column">
+                        <input type="text" class="payment-name-input" placeholder="Nombre o descripción">
+                    </td>
+                    <td class="payment-date-column">
+                        <input type="date" value="${today}" class="payment-date-input">
+                    </td>
+                    <td class="payment-amount-column">
+                        <input type="number" min="0" step="0.01" class="payment-amount-input" placeholder="0.00">
+                    </td>
+                    <td class="payment-type-column">
+                        <select class="payment-type-select">
+                            <option value="cobrar">Cobrar</option>
+                            <option value="pagar">Pagar</option>
+                        </select>
+                    </td>
+                `;
+                
+                paymentsTableBody.appendChild(newRow);
+                
+                // Agregar event listener para cambiar el estilo del select
+                const typeSelect = newRow.querySelector('.payment-type-select');
+                typeSelect.addEventListener('change', function() {
+                    if (this.value === 'cobrar') {
+                        this.className = 'payment-type-select cobrar';
+                    } else {
+                        this.className = 'payment-type-select pagar';
+                    }
+                });
+                
+                // Inicializar el estilo del select
+                if (typeSelect.value === 'cobrar') {
+                    typeSelect.className = 'payment-type-select cobrar';
+                } else {
+                    typeSelect.className = 'payment-type-select pagar';
+                }
+            }
+            
+            // Función para eliminar la última fila de cobros y pagos
+            function deletePaymentRow() {
+                const rows = paymentsTableBody.querySelectorAll('tr');
+                if (rows.length > 1) {
+                    paymentsTableBody.removeChild(rows[rows.length - 1]);
+                }
+            }
+            
+            // Función para calcular el balance de cobros y pagos
+            function calculatePaymentsBalance() {
+                const rows = paymentsTableBody.querySelectorAll('tr');
+                let totalCobros = 0;
+                let totalPagos = 0;
+                
+                rows.forEach(row => {
+                    const amountInput = row.querySelector('.payment-amount-input');
+                    const typeSelect = row.querySelector('.payment-type-select');
+                    
+                    const amount = parseFloat(amountInput.value) || 0;
+                    
+                    if (typeSelect.value === 'cobrar') {
+                        totalCobros += amount;
+                    } else {
+                        totalPagos += amount;
+                    }
+                });
+                
+                return {
+                    cobros: totalCobros,
+                    pagos: totalPagos,
+                    balance: totalCobros - totalPagos
+                };
+            }
+            
+            // Función para mostrar el balance de cobros y pagos
+            function showPaymentsBalance() {
+                const balance = calculatePaymentsBalance();
+                const netBalance = balance.balance;
+                
+                let resultText = `Cobros: $${balance.cobros.toFixed(2)} | Pagos: $${balance.pagos.toFixed(2)}<br>`;
+                resultText += `Balance neto: $${netBalance.toFixed(2)}`;
+                
+                paymentsResult.innerHTML = resultText;
+                paymentsModal.style.display = 'flex';
+            }
+            
+            // ========== EVENT LISTENERS ==========
+            
+            // Event listeners para finanzas
+            addRowBtn.addEventListener('click', addFinanceRow);
+            deleteRowBtn.addEventListener('click', deleteFinanceRow);
+            finalBalanceBtn.addEventListener('click', showFinalBalance);
+            closeModalBtn.addEventListener('click', () => {
+                balanceModal.style.display = 'none';
+            });
+            
+            // Event listeners para inventario
+            addInventoryRowBtn.addEventListener('click', addInventoryRow);
+            deleteInventoryRowBtn.addEventListener('click', deleteInventoryRow);
+            totalInventoryBtn.addEventListener('click', showTotalInventory);
+            closeInventoryModalBtn.addEventListener('click', () => {
+                inventoryModal.style.display = 'none';
+            });
+            
+            // Event listeners para clientes
+            addClientRowBtn.addEventListener('click', addClientRow);
+            deleteClientRowBtn.addEventListener('click', deleteClientRow);
+            totalSalesBtn.addEventListener('click', showTotalSales);
+            closeSalesModalBtn.addEventListener('click', () => {
+                salesModal.style.display = 'none';
+            });
+            
+            // Event listeners para cobros y pagos
+            addPaymentRowBtn.addEventListener('click', addPaymentRow);
+            deletePaymentRowBtn.addEventListener('click', deletePaymentRow);
+            totalPaymentsBtn.addEventListener('click', showPaymentsBalance);
+            closePaymentsModalBtn.addEventListener('click', () => {
+                paymentsModal.style.display = 'none';
+            });
+            
+            // Cerrar modales al hacer clic fuera del contenido
+            balanceModal.addEventListener('click', (e) => {
+                if (e.target === balanceModal) {
+                    balanceModal.style.display = 'none';
+                }
+            });
+            
+            inventoryModal.addEventListener('click', (e) => {
+                if (e.target === inventoryModal) {
+                    inventoryModal.style.display = 'none';
+                }
+            });
+            
+            salesModal.addEventListener('click', (e) => {
+                if (e.target === salesModal) {
+                    salesModal.style.display = 'none';
+                }
+            });
+            
+            paymentsModal.addEventListener('click', (e) => {
+                if (e.target === paymentsModal) {
+                    paymentsModal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
